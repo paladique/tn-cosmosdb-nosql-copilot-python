@@ -1,0 +1,8 @@
+<h1>Session Details</h1>
+<p>Session ID: {{ session.id }}</p>
+<p>Session Name: {{ session.name }}</p>
+{% if message %}
+    <h2>Message Details</h2>
+    <p>Prompt: {{ message.prompt }}</p>
+    <p>Completion: {{ message.completion }}</p>
+{% endif %}
