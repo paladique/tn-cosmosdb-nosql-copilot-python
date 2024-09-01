@@ -1,8 +1,44 @@
-<h1>Session Details</h1>
-<p>Session ID: {{ session.id }}</p>
-<p>Session Name: {{ session.name }}</p>
-{% if message %}
-    <h2>Message Details</h2>
-    <p>Prompt: {{ message.prompt }}</p>
-    <p>Completion: {{ message.completion }}</p>
-{% endif %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session Detail</title>
+</head>
+<body>
+    <h1>Session Detail</h1>
+    <p><strong>Session ID:</strong> {{ session.id }}</p>
+    <p><strong>Session Name:</strong> {{ session.name }}</p>
+    <p><strong>Tokens:</strong> {{ session.tokens }}</p>
+
+    <h2>Add a Message</h2>
+    <form method="POST" action="{% url 'add_message' session.id %}">
+        {% csrf_token %}
+        <label for="prompt">Prompt:</label><br>
+        <textarea id="prompt" name="prompt" rows="4" cols="50"></textarea><br><br>
+        <label for="completion">Completion:</label><br>
+        <textarea id="completion" name="completion" rows="4" cols="50"></textarea><br><br>
+        <button type="submit">Add Message</button>
+    </form>
+
+    <h2>Messages</h2>
+    <ul>
+        {% for message in session.messages.all %}
+            <li>
+                <p><strong>Prompt:</strong> {{ message.prompt }}</p>
+                <p><strong>Completion:</strong> {{ message.completion }}</p>
+                <p><strong>Timestamp:</strong> {{ message.timestamp }}</p>
+                <form method="POST" action="{% url 'update_message' session.id message.id %}">
+                    {% csrf_token %}
+                    <label for="update_prompt">Update Prompt:</label><br>
+                    <textarea id="update_prompt" name="prompt" rows="2" cols="50">{{ message.prompt }}</textarea><br><br>
+                    <label for="update_completion">Update Completion:</label><br>
+                    <textarea id="update_completion" name="completion" rows="2" cols="50">{{ message.completion }}</textarea><br><br>
+                    <button type="submit">Update Message</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'index' %}">Back to Home</a>
+</body>
+</html>
