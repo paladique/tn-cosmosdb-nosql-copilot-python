@@ -1,4 +1,3 @@
-# Create your models here.
 from django.db import models
 from django.utils import timezone
 import uuid
@@ -39,6 +38,7 @@ class Session(models.Model):
         return f'Session {self.id}'
 
     def add_message(self, prompt, prompt_tokens, completion='', completion_tokens=0):
+        # Create and save the message
         message = Message(
             session=self,
             prompt=prompt,
@@ -47,7 +47,9 @@ class Session(models.Model):
             completion_tokens=completion_tokens
         )
         message.save()
-        self.tokens += prompt_tokens + completion_tokens
+
+        # Update session tokens
+        self.tokens = (self.tokens or 0) + prompt_tokens + completion_tokens
         self.save()
 
     def update_message(self, message_id, prompt=None, completion=None, completion_tokens=None):
@@ -57,7 +59,7 @@ class Session(models.Model):
         if completion is not None:
             message.completion = completion
         if completion_tokens is not None:
-            self.tokens += completion_tokens - message.completion_tokens
+            self.tokens = (self.tokens or 0) + completion_tokens - message.completion_tokens
             message.completion_tokens = completion_tokens
         message.save()
         self.save()
