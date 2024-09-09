@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Interface</title>
+</head>
+<body>
+    <h1>ChatGPT Interface</h1>
+    <form id="chat-form">
+        <textarea id="user-input" placeholder="Ask something..."></textarea><br>
+        <button type="submit">Send</button>
+    </form>
+
+    <h2>Response:</h2>
+    <p id="response-text"></p>
+
+    <script>
+        const form = document.getElementById('chat-form');
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const userInput = document.getElementById('user-input').value;
+
+            const response = await fetch("{% url 'generate_response' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ user_input: userInput })
+            });
+
+            const data = await response.json();
+            document.getElementById('response-text').textContent = data.response || data.error;
+        });
+    </script>
+</body>
+</html>
