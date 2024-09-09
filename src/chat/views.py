@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Access the API key
-openai.api_key = '93300d90b1e5406d919dc9c3e8d0a799'
+openai.api_key = ''
 
 def index(request):
     template = loader.get_template('home.html')
