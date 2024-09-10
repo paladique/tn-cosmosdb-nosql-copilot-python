@@ -8,34 +8,35 @@ class CacheItem(models.Model):
     vectors = models.JSONField()  # Storing the vectors as a JSON list of floats
     prompts = models.TextField()
     completion = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)  # Timestamp for cache invalidation purposes
+
 
     def __str__(self):
-        return f'CacheItem {self.id}'
+        return f'CacheItem {self.id} - Prompt: {self.prompts[:50]}'
+
 
 # Message Model
+# This model stores individual user prompts and OpenAI-generated responses within a session.
 class Message(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    type = models.CharField(max_length=50, default='Message')
     session = models.ForeignKey('Session', related_name='messages', on_delete=models.CASCADE)
     timestamp = models.DateTimeField(default=timezone.now)
-    prompt = models.TextField()
-    prompt_tokens = models.IntegerField()
-    completion = models.TextField(blank=True, null=True)
-    completion_tokens = models.IntegerField(default=0)
+    prompt = models.TextField()  # User input
+    prompt_tokens = models.IntegerField()  # Tokens used for the prompt
+    completion = models.TextField(blank=True, null=True)  # GPT-generated response
+    completion_tokens = models.IntegerField(default=0)  # Tokens used for the completion
 
     def __str__(self):
-        return f'Message {self.id} in Session {self.session.id}'
+        return f'Message {self.id} in Session {self.session.id} - Prompt: {self.prompt[:50]}'
 
 # Session Model
 class Session(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    type = models.CharField(max_length=50, default='Session')
-    session_id = models.UUIDField(default=uuid.uuid4, unique=True)
-    tokens = models.IntegerField(default=0, null=True, blank=True)
-    name = models.CharField(max_length=100, default='New Chat')
+    session_id = models.UUIDField(primary_key=True, default=uuid.uuid4, unique=True)
+    tokens = models.IntegerField(default=0, null=True, blank=True)  # Total tokens used in the session
+    name = models.CharField(max_length=100, default='New Chat')  # Name of the session
 
     def __str__(self):
-        return f'Session {self.id}'
+        return f'Session {self.session_id} - {self.name}'
 
     def add_message(self, prompt, prompt_tokens, completion='', completion_tokens=0):
         # Create and save the message
