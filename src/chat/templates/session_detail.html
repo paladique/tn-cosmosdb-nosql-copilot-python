@@ -7,18 +7,18 @@
 </head>
 <body>
     <h1>Session Detail</h1>
-    <p><strong>Session ID:</strong> {{ session.id }}</p>
+    <p><strong>Session ID:</strong> {{ session.session_id }}</p>
     <p><strong>Session Name:</strong> {{ session.name }}</p>
     <p><strong>Tokens:</strong> {{ session.tokens }}</p>
 
     <h2>Add a Message</h2>
-    <form method="POST" action="{% url 'add_message' session.id %}">
+    <form action="{% url 'generate_response' session_id=session.session_id %}" method="post">
         {% csrf_token %}
         <label for="prompt">Prompt:</label><br>
-        <textarea id="prompt" name="prompt" rows="4" cols="50"></textarea><br><br>
+        <textarea id="prompt" name="prompt" rows="4" cols="50" placeholder="Enter the prompt here..."></textarea><br><br>
         <label for="completion">Completion:</label><br>
-        <textarea id="completion" name="completion" rows="4" cols="50"></textarea><br><br>
-        <button type="submit">Add Message</button>
+        <textarea id="completion" name="completion" rows="4" cols="50" placeholder="Enter the completion here..."></textarea><br><br>
+        <button type="submit">Generate Response</button>
     </form>
 
     <h2>Messages</h2>
@@ -28,7 +28,7 @@
                 <p><strong>Prompt:</strong> {{ message.prompt }}</p>
                 <p><strong>Completion:</strong> {{ message.completion }}</p>
                 <p><strong>Timestamp:</strong> {{ message.timestamp }}</p>
-                <form method="POST" action="{% url 'update_message' session.id message.id %}">
+                <form method="POST" action="{% url 'update_message' session_id=session.session_id message_id=message.id %}">
                     {% csrf_token %}
                     <label for="update_prompt">Update Prompt:</label><br>
                     <textarea id="update_prompt" name="prompt" rows="2" cols="50">{{ message.prompt }}</textarea><br><br>
@@ -39,6 +39,8 @@
             </li>
         {% endfor %}
     </ul>
+
+    <a href="{% url 'create_session' %}">Create New Session</a>
     <a href="{% url 'index' %}">Back to Home</a>
 </body>
 </html>
