@@ -5,9 +5,9 @@ import uuid
 # CacheItem Model
 class CacheItem(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    vectors = models.JSONField()  # Storing the vectors as a JSON list of floats
-    prompts = models.TextField()
-    completion = models.TextField()
+    vectors = models.JSONField(null=True)  # Cache vectors
+    prompts = models.TextField(null=True)
+    completion = models.TextField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)  # Timestamp for cache invalidation purposes
 
 
