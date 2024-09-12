@@ -12,16 +12,15 @@
     <p><strong>Tokens:</strong> {{ session.tokens }}</p>
 
     <h2>Add a Message</h2>
-    <form action="{% url 'generate_response' session_id=session.session_id %}" method="post">
+     <!-- Form -->
+    <form id="message-form">
         {% csrf_token %}
         <label for="prompt">Prompt:</label><br>
         <textarea id="prompt" name="prompt" rows="4" cols="50" placeholder="Enter the prompt here..."></textarea><br><br>
-        <label for="completion">Completion:</label><br>
-        <textarea id="completion" name="completion" rows="4" cols="50" placeholder="Enter the completion here..."></textarea><br><br>
         <button type="submit">Generate Response</button>
     </form>
 
-    <h2>Messages</h2>
+    <h2>ChatGPT Response</h2>
     <ul>
         {% for message in session.messages.all %}
             <li>
@@ -42,5 +41,47 @@
 
     <a href="{% url 'create_session' %}">Create New Session</a>
     <a href="{% url 'index' %}">Back to Home</a>
+
+    <!-- Add JavaScript to handle form submission via fetch -->
+    <script>
+        document.getElementById('message-form').addEventListener('submit', async function(event) {
+            event.preventDefault();  // Prevent the default form submission behavior
+
+            const prompt = document.getElementById('prompt').value;  // Get the value from the textarea
+
+            // Check if the prompt is not empty
+            if (!prompt.trim()) {
+                alert("Please enter a prompt");
+                return;
+            }
+
+            try {
+                const response = await fetch("{% url 'generate_response' session_id=session.session_id %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'  // Add the CSRF token for security
+                    },
+                    body: JSON.stringify({
+                        user_input: prompt  // Send prompt as part of JSON body
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Handle success response, e.g., display the generated text
+                    console.log('Response:', data.response);
+                    alert('Response: ' + data.response);
+                } else {
+                    // Handle errors
+                    console.error('Error:', data.error);
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Fetch Error:', error);
+            }
+        });
+    </script>
 </body>
 </html>
