@@ -1,21 +1,21 @@
-# This file is a reference example for Azure OpenAI. ITS NOT PART OF THE PROJECT
-
-
+# This file is a reference example for Azure OpenAI.
+# ITS NOT PART OF THE PROJECT
 import os
 from openai import AzureOpenAI
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 
-endpoint = os.getenv("ENDPOINT_URL", "https://python-cosmos.openai.azure.com/")
-deployment = os.getenv("DEPLOYMENT_NAME", "py_cosmos")
+# endpoint = os.getenv("ENDPOINT_URL", "https://python-cosmos.openai.azure.com/")
+# deployment = os.getenv("DEPLOYMENT_NAME", "py_cosmos")
 
-token_provider = get_bearer_token_provider(
-    DefaultAzureCredential(),
-    "https://cognitiveservices.azure.com/.default")
+# token_provider = get_bearer_token_provider(
+#     DefaultAzureCredential(),
+#     "https://cognitiveservices.azure.com/.default")
+  
       
 client = AzureOpenAI(
-    azure_endpoint=endpoint,
-    azure_ad_token_provider=token_provider,
-    api_version="2024-05-01-preview",
+  azure_endpoint = "https://python-cosmos.openai.azure.com/", 
+  api_key= "494a52a79b814fd0b2ad6792f08487ed",  
+  api_version="2024-05-01-preview",
 )
       
 completion = client.chat.completions.create(
@@ -34,6 +34,9 @@ completion = client.chat.completions.create(
     stream=False
 )
 print(completion.to_json())
+
+
+
 
 
 
@@ -125,3 +128,17 @@ def chatgpt_response(request):
             return JsonResponse({'error': str(e)}, status=400)
 
     return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+client = openai.AzureOpenAI(
+  azure_endpoint=openai.api_base, 
+  api_key=openai.api_key,  
+  api_version=openai.api_version
+)
+response = client.chat.completions.create( 
+    model=openai_deployment_completion,
+    messages = [{'role':'system','content':prompt}],
+    temperature=0, 
+    max_tokens=600,
+    stream=False)
+print(response.choices[0].message.content)
