@@ -19,7 +19,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1500px;
             margin: 30px auto;
             padding: 20px;
             background-color: white;
@@ -27,12 +27,7 @@
             border-radius: 8px;
         }
 
-        .session-info p {
-            font-size: 16px;
-            color: #555;
-        }
-
-        .form-section, .response-section {
+        .form-section {
             margin-top: 20px;
         }
 
@@ -64,6 +59,42 @@
             background-color: #0056b3;
         }
 
+        .chat-window {
+            max-width: 100%;
+            height: auto;
+            background-color: white;
+            margin: 0 auto;
+            padding: 10px;
+            border-radius: 10px;
+            overflow-y: auto;
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .message.user .content {
+            background-color: #e6f7ff;
+            color: #333;
+            padding: 10px;
+            border-radius: 15px;
+            margin-left: auto;
+            max-width: 75%;
+            text-align: right;
+        }
+
+        .message.assistant .content {
+            background-color: #1f94d7;
+            color: #ffffff;
+            padding: 10px;
+            border-radius: 15px;
+            margin-right: auto;
+            max-width: 75%;
+            text-align: left;
+        }
+
         .response-container {
             margin-top: 20px;
             padding: 15px;
@@ -73,14 +104,14 @@
             color: #333;
         }
 
-        .response-container p {
-            margin: 10px 0;
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
+        .message p {
+            margin: 0;
         }
 
-        .response-container p:last-child {
-            border-bottom: none;
+        .tokens {
+            font-size: 12px;
+            color: #999;
+            margin-left: 10px;
         }
 
         .message-list {
@@ -90,49 +121,32 @@
         }
 
         .message-list li {
-            padding: 15px;
-            margin-bottom: 10px;
-            border: 1px solid #eee;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-        }
-
-        .message-list li p {
-            margin: 5px 0;
-        }
-
-        .message-list textarea {
-            margin-top: 10px;
-        }
-
-        .message-list button {
-            margin-top: 10px;
-        }
-
-        a {
-            display: inline-block;
-            margin: 10px 0;
-            color: #007BFF;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
+    <h1>Welcome to the Python CosmosDB Chatgpt</h1>
     <div class="container">
-        <h1>Welcome to the Python CosmosDB Chatgpt</h1>
-        <!-- <h1>Session Detail</h1>
-        <div class="session-info">
-            <p><strong>Session ID:</strong> {{ session.session_id }}</p>
-            <p><strong>Session Name:</strong> {{ session.name }}</p>
-            <p><strong>Tokens:</strong> {{ session.tokens }}</p>
-        </div> -->
+        <div class="chat-window">
+            <h2>Chat Session</h2>
+            <ul id="chat-session" class="message-list">
+                {% for message in session.messages.all %}
+                    <li class="message user">
+                        <div class="content">
+                            <p>{{ message.prompt }}</p>
+                        </div>
+                    </li>
+                    <li class="message assistant">
+                        <div class="content">
+                            <p>{{ message.completion }}</p>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
 
         <div class="form-section">
-            <!-- Form -->
             <form id="message-form">
                 {% csrf_token %}
                 <label for="prompt">Prompt:</label><br>
@@ -141,43 +155,22 @@
             </form>
         </div>
 
-        <div class="response-section">
-            <h2>Response</h2>
-            <ul class="message-list">
-                {% for message in session.messages.all %}
-                    <li>
-                        <p><strong>Prompt:</strong> {{ message.prompt }}</p>
-                        <p><strong>Completion:</strong> {{ message.completion }}</p>
-                        <p><strong>Timestamp:</strong> {{ message.timestamp }}</p>
-                        <!-- <form method="POST" action="{% url 'update_message' session_id=session.session_id message_id=message.id %}">
-                            {% csrf_token %}
-                            <label for="update_prompt">Update Prompt:</label><br>
-                            <textarea id="update_prompt" name="prompt" rows="2" cols="50">{{ message.prompt }}</textarea><br><br>
-                            <label for="update_completion">Update Completion:</label><br>
-                            <textarea id="update_completion" name="completion" rows="2" cols="50">{{ message.completion }}</textarea><br><br>
-                            <button type="submit">Update Message</button>
-                        </form> -->
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-
-        <!-- Placeholder for the new response -->
         <div id="response-container" class="response-container"></div>
 
-        <div id="response-container" class="response-container">
+        <div class="response-container">
             <ul class="message-list">
-                    <li>
-                        <a href="{% url 'create_session' %}">Create New Session</a>
-                    </li>
-                    <li>
-                        <a href="{% url 'index' %}">Back to Home</a>
-                    </li>
+                <li class="message assistant">
+                    <a href="{% url 'create_session' %}">Create New Session</a>
+                </li>
+                <li>
+                    <a href="{% url 'index' %}">Back to Home</a>
+                </li>
             </ul>
         </div>
     </div>
 
-    <!-- Add JavaScript to handle form submission via fetch -->
+
+    <!-- JavaScript to handle form submission -->
     <script>
         document.getElementById('message-form').addEventListener('submit', async function(event) {
             event.preventDefault();  // Prevent the default form submission behavior
@@ -205,14 +198,28 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    // Handle success response, e.g., display the generated text
-                    console.log('Response:', data.response);
-                    const responseContainer = document.getElementById('response-container');
-                    responseContainer.innerHTML = `
-                        <p><strong>Completion:</strong> ${data.response}</p>
+                    // Update the chat session with user's input
+                    const chatSession = document.getElementById('chat-session');
+                    chatSession.innerHTML += `
+                        <li class="message user">
+                            <div class="content">
+                                <p>${prompt}</p>
+                            </div>
+                        </li>
+                        <li class="message assistant">
+                            <div class="content">
+                                <p>${data.response}</p>
+                            </div>
+                        </li>
                     `;
+
+                    // Scroll chat window to the bottom to show the new messages
+                    const chatWindow = document.querySelector('.chat-window');
+                    chatWindow.scrollTop = chatWindow.scrollHeight;
+
+                    // Clear the input field after submission
+                    document.getElementById('prompt').value = '';
                 } else {
-                    // Handle errors
                     console.error('Error:', data.error);
                     alert('Error: ' + data.error);
                 }
