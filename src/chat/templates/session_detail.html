@@ -149,14 +149,14 @@
                         <p><strong>Prompt:</strong> {{ message.prompt }}</p>
                         <p><strong>Completion:</strong> {{ message.completion }}</p>
                         <p><strong>Timestamp:</strong> {{ message.timestamp }}</p>
-                        <form method="POST" action="{% url 'update_message' session_id=session.session_id message_id=message.id %}">
+                        <!-- <form method="POST" action="{% url 'update_message' session_id=session.session_id message_id=message.id %}">
                             {% csrf_token %}
                             <label for="update_prompt">Update Prompt:</label><br>
                             <textarea id="update_prompt" name="prompt" rows="2" cols="50">{{ message.prompt }}</textarea><br><br>
                             <label for="update_completion">Update Completion:</label><br>
                             <textarea id="update_completion" name="completion" rows="2" cols="50">{{ message.completion }}</textarea><br><br>
                             <button type="submit">Update Message</button>
-                        </form>
+                        </form> -->
                     </li>
                 {% endfor %}
             </ul>
@@ -164,6 +164,7 @@
 
         <!-- Placeholder for the new response -->
         <div id="response-container" class="response-container"></div>
+
         <div id="response-container" class="response-container">
             <ul class="message-list">
                     <li>
