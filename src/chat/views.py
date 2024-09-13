@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 ########## Add client secrets here ##########
 
+
 # Access the API key
 # openai.api_key = os.getenv("api_key")
 
@@ -33,7 +34,14 @@ def create_session(request):
 # Get session details or return 404
 def session_detail(request, session_id):
     session = get_object_or_404(Session, session_id=session_id)
-    return render(request, 'session_detail.html', {'session': session})
+    
+    # Get all messages related to this session
+    messages = session.messages.all()
+    
+    return render(request, 'session_detail.html', {
+        'session': session,
+        'messages': messages,
+        })
 
 
  # Add a message to an existing session
