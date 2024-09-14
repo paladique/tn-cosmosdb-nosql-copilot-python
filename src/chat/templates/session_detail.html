@@ -31,7 +31,7 @@
       <div class="form-section">
         <form id="message-form">
           {% csrf_token %}
-          <label for="prompt">Prompt:</label><br />
+          <label for="prompt">Ask a Question:</label><br />
           <textarea
             id="prompt"
             name="prompt"
@@ -89,6 +89,7 @@
             );
 
             const data = await response.json();
+            console.log(data.response);
 
             if (response.ok) {
               // Update the chat session with user's input
