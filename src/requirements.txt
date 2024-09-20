@@ -1,3 +1,4 @@
 Django
 azure-cosmos
 openai
+python-dotenv

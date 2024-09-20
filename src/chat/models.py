@@ -28,6 +28,15 @@ class Message(models.Model):
 
     def __str__(self):
         return f'Message {self.id} in Session {self.session.id} - Prompt: {self.prompt[:50]}'
+    
+    def generate_completion(self):
+        from .services import AIService
+        ai_service = AIService()
+        completion, self.completion = ai_service.get_completion(self.prompt)
+        return completion
+    
+
+
 
 # Session Model
 class Session(models.Model):

@@ -1,5 +1,14 @@
 from .models import CacheItem
 from azure.cosmos import CosmosClient, PartitionKey, exceptions
+from openai import AzureOpenAI
+from dotenv import load_dotenv
+
+config = load_dotenv()
+AOAI_COMPLETION_DEPLOYMENT = config['AOAI_COMPLETION_DEPLOYMENT']
+AOAI_KEY = config['AOAI_KEY']
+AOAI_ENDPOINT = config['AOAI_ENDPOINT']
+API_VERSION = '2024-02-01'
+
 
 def check_cache(prompt):
     return CacheItem.objects.filter(prompts=prompt).first()
@@ -34,3 +43,57 @@ def create_or_query_item(item_data):
         container.create_item(item_data)
     except exceptions.CosmosHttpResponseError as e:
         print(f"Error creating item: {str(e)}")
+
+# Initialize AOAI Service
+
+class AIService:
+    def __init__(self):
+        self.endpoint = AOAI_ENDPOINT
+        self.key = AOAI_KEY
+        self.client =  AzureOpenAI(
+        azure_endpoint=AOAI_ENDPOINT,
+        api_key=AOAI_KEY,  
+        api_version= API_VERSION
+        )
+
+    def get_completion(self, prompt):
+        completion = self.aoai_client.chat.completions.create(
+            model=AOAI_COMPLETION_DEPLOYMENT,
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            max_tokens=800,
+            temperature=0.7,
+            top_p=0.95,
+            frequency_penalty=0,
+            presence_penalty=0,
+            stop=None,
+            stream=False
+        )
+        return completion.choices[0].message.content
+    
+
+
+    def get_completion(self, prompt):
+        completion = self.chat.completions.create(
+            model=AOAI_COMPLETION_DEPLOYMENT,
+            messages= [
+            {
+            "role": "user",
+            "content": prompt
+            }],
+            max_tokens=800,
+            temperature=0.7,
+            top_p=0.95,
+            frequency_penalty=0,
+            presence_penalty=0,
+            stop=None,
+            stream=False
+        )
+        return completion.choices[0].message.content
+    
+
+

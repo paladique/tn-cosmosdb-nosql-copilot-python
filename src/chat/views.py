@@ -3,8 +3,6 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Session, Message, CacheItem
 from django.views.decorators.csrf import csrf_exempt
 from django.template import loader
-from openai import AzureOpenAI
-# from dotenv import load_dotenv
 import logging
 import json
 import os
@@ -13,13 +11,11 @@ logger = logging.getLogger(__name__)
 
 
 # Load environment variables from .env file
-# load_dotenv()
+
 
 ########## Add client secrets here ##########
 
 
-# Access the API key
-# openai.api_key = os.getenv("api_key")
 
 # Home page
 def index(request):
@@ -90,17 +86,21 @@ def generate_response(request, session_id):
             #     generated_text = cached_item.completion
             # else:
                 # Call OpenAI API
-            response = client.chat.completions.create(
-                model="python-cosmos",
-                messages=[
-                    {"role": "system", "content": "You are my coding assistant."},
-                    {"role": "user", "content": user_input}
-                ],
-                    max_tokens=150,
-                    temperature=0.7
-                )
-            logger.info("OpenAI Response: %s", response)  # Log the full response from OpenAI
-            generated_text = response.choices[0].message.content
+            # response = client.chat.completions.create(
+            #     model="python-cosmos",
+            #     messages=[
+            #         {"role": "system", "content": "You are my coding assistant."},
+            #         {"role": "user", "content": user_input}
+            #     ],
+            #         max_tokens=150,
+            #         temperature=0.7
+            #     )
+            # logger.info("OpenAI Response: %s", response)  # Log the full response from OpenAI
+            # generated_text = response.choices[0].message.content
+
+            # Get the completion from the AI service
+            msg = Message.objects.create(session=session, prompt=user_input, prompt_tokens=len(user_input.split()))
+            generated_text = msg.generate_completion()
 
                 # Save to cache
             CacheItem.objects.create(prompts=user_input, completion=generated_text)
