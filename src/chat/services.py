@@ -1,14 +1,22 @@
 from .models import CacheItem
 from azure.cosmos import CosmosClient, PartitionKey, exceptions
 from openai import AzureOpenAI
-from dotenv import load_dotenv
+import os
 
-config = load_dotenv()
-AOAI_COMPLETION_DEPLOYMENT = config['AOAI_COMPLETION_DEPLOYMENT']
-AOAI_KEY = config['AOAI_KEY']
-AOAI_ENDPOINT = config['AOAI_ENDPOINT']
+# os.environ.get("NAME")
+
+# from dotenv import load_dotenv
+
+# config = load_dotenv()
+# AOAI_COMPLETION_DEPLOYMENT = config['AOAI_COMPLETION_DEPLOYMENT']
+# AOAI_KEY = config['AOAI_KEY']
+# AOAI_ENDPOINT = config['AOAI_ENDPOINT']
+# API_VERSION = '2024-02-01'
+
+AOAI_COMPLETION_DEPLOYMENT = os.environ.get('AOAI_COMPLETION_DEPLOYMENT')
+AOAI_KEY = os.environ.get('AOAI_KEY')
+AOAI_ENDPOINT = os.environ.get('AOAI_ENDPOINT')
 API_VERSION = '2024-02-01'
-
 
 def check_cache(prompt):
     return CacheItem.objects.filter(prompts=prompt).first()
@@ -57,7 +65,7 @@ class AIService:
         )
 
     def get_completion(self, prompt):
-        completion = self.aoai_client.chat.completions.create(
+        completion = self.client.chat.completions.create(
             model=AOAI_COMPLETION_DEPLOYMENT,
             messages=[
                 {
@@ -78,7 +86,7 @@ class AIService:
 
 
     def get_completion(self, prompt):
-        completion = self.chat.completions.create(
+        completion = self.client.chat.completions.create(
             model=AOAI_COMPLETION_DEPLOYMENT,
             messages= [
             {

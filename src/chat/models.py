@@ -32,11 +32,9 @@ class Message(models.Model):
     def generate_completion(self):
         from .services import AIService
         ai_service = AIService()
-        completion, self.completion = ai_service.get_completion(self.prompt)
+        completion = self.completion = ai_service.get_completion(self.prompt)
         return completion
     
-
-
 
 # Session Model
 class Session(models.Model):
