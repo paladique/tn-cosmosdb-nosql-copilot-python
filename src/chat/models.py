@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.forms.models import model_to_dict
 import uuid
 
 # CacheItem Model
@@ -34,6 +35,11 @@ class Message(models.Model):
         ai_service = AIService()
         completion = self.completion = ai_service.get_completion(self.prompt)
         return completion
+    
+    def save(self, *args, **kwargs):
+        from .services import CosmosService
+        cosmos_service = CosmosService()
+        cosmos_service.add_item(self)
     
 
 # Session Model

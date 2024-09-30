@@ -102,7 +102,7 @@ def generate_response(request, session_id):
             msg = Message.objects.create(session=session, prompt=user_input, prompt_tokens=len(user_input.split()))
             generated_text = msg.generate_completion()
 
-                # Save to cache
+            # Save to cache
             CacheItem.objects.create(prompts=user_input, completion=generated_text)
 
             # Track tokens

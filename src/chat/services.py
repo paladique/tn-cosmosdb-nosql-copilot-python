@@ -17,6 +17,8 @@ AOAI_COMPLETION_DEPLOYMENT = os.environ.get('AOAI_COMPLETION_DEPLOYMENT')
 AOAI_KEY = os.environ.get('AOAI_KEY')
 AOAI_ENDPOINT = os.environ.get('AOAI_ENDPOINT')
 API_VERSION = '2024-02-01'
+COSMOSDB_ENDPOINT = os.environ.get('COSMOSDB_ENDPOINT')
+COSMOSDB_KEY = os.environ.get('COSMOSDB_KEY')
 
 def check_cache(prompt):
     return CacheItem.objects.filter(prompts=prompt).first()
@@ -27,30 +29,7 @@ def save_to_cache(vectors, prompt, completion):
     return cache_item
 
 
-# Initialize the Cosmos client
-def get_cosmos_client():
-    endpoint = "your-cosmosdb-endpoint"
-    key = "your-cosmosdb-key"
-    client = CosmosClient(endpoint, key)
-    return client
 
-def get_database():
-    client = get_cosmos_client()
-    database_name = "your-database-name"
-    return client.get_database_client(database_name)
-
-def get_container():
-    database = get_database()
-    container_name = "your-container-name"
-    return database.get_container_client(container_name)
-
-# Function to create or query items
-def create_or_query_item(item_data):
-    container = get_container()
-    try:
-        container.create_item(item_data)
-    except exceptions.CosmosHttpResponseError as e:
-        print(f"Error creating item: {str(e)}")
 
 # Initialize AOAI Service
 
@@ -104,4 +83,27 @@ class AIService:
         return completion.choices[0].message.content
     
 
+class CosmosService:
+    def __init__(self):
+        self.client = CosmosClient(COSMOSDB_ENDPOINT, 
+                                   COSMOSDB_KEY)
 
+    def get_database(self, database_name):
+       self.database = self.client.get_database_client(database_name)
+
+    def get_container(self, container_name):
+        self.container = self.database.get_container_client(container_name)
+
+    def add_item(self, item_data):
+        try:
+            self.container.create_item(item_data)
+        except exceptions.CosmosHttpResponseError as e:
+            print(f"Error creating item: {str(e)}")
+
+    # Function to create or query items
+    # def create_or_query_item(item_data):
+    #     get_container()
+    #     try:
+    #         container.create_item(item_data)
+    #     except exceptions.CosmosHttpResponseError as e:
+    #         print(f"Error creating item: {str(e)}")
