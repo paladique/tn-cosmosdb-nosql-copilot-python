@@ -8,6 +8,6 @@
 <body>
     <h1>Welcome to the ChatGPT Application</h1>
     <p>This is where everything starts.</p>
-    <a href="{% url 'create_session' %}">Start a new chat session</a>
+    <a href="{{ url_for('app.create_session') }}">Start a new chat session</a>
 </body>
 </html>
