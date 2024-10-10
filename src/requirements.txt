@@ -1,3 +1,5 @@
 azure-cosmos
 openai
 python-dotenv
+tiktoken
+flask

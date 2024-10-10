@@ -1,126 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Session Detail</title>
-    {% load static %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  </head>
-  <body>
-    <h1>Welcome to the Python CosmosDB Chatgpt</h1>
-    <div class="container">
-      <div class="chat-window">
-        <h2>Chat Session</h2>
-        <ul id="chat-session" class="message-list">
-          {% for message in session.messages.all %}
-          <li class="message user">
-            <div class="content">
-              <p>{{ message.prompt }}</p>
-            </div>
-          </li>
-          <li class="message assistant">
-            <div class="content">
-              <p>{{ message.completion }}</p>
-            </div>
-          </li>
-          {% endfor %}
-        </ul>
-      </div>
-
-      <div class="form-section">
-        <form id="message-form">
-          {% csrf_token %}
-          <label for="prompt">Ask a Question:</label><br />
-          <textarea
-            id="prompt"
-            name="prompt"
-            rows="4"
-            cols="50"
-            placeholder="Enter the prompt here..."
-          ></textarea
-          ><br /><br />
-          <button type="submit">Generate Response</button>
-        </form>
-      </div>
-
-      <div id="response-container" class="response-container"></div>
-
-      <div class="response-container">
-        <ul class="message-list">
-          <li class="message assistant">
-            <a href="{{ url_for('app.create_session') }}">Create New Session</a>
-          </li>
-          <li>
-            <a href="{% url 'index' %}">Back to Home</a>
-          </li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- JavaScript to handle form submission -->
     <script>
-      document
-        .getElementById("message-form")
-        .addEventListener("submit", async function (event) {
-          event.preventDefault(); // Prevent the default form submission behavior
+        document.addEventListener("DOMContentLoaded", function () {
+            document
+                .getElementById("message-form")
+                .addEventListener("submit", async function (event) {
+                    event.preventDefault(); // Prevent the default form submission behavior
 
-          const prompt = document.getElementById("prompt").value; // Get the value from the textarea
+                    const prompt = document.getElementById("prompt").value; // Get the value from the textarea
 
-          // Check if the prompt is not empty
-          if (!prompt.trim()) {
-            alert("Please enter a prompt");
-            return;
-          }
+                    // Check if the prompt is not empty
+                    if (!prompt.trim()) {
+                        alert("Please enter a prompt");
+                        return;
+                    }
 
-          try {
-            const response = await fetch(
-              "{% url 'generate_response' session_id=session.session_id %}",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  "X-CSRFToken": "{{ csrf_token }}", // Add the CSRF token for security
-                },
-                body: JSON.stringify({
-                  user_input: prompt, // Send prompt as part of JSON body
-                }),
-              }
-            );
+                    try {
+                        const response = await fetch(
+                            "{{ url_for('app.generate_response', session_id=session_id) }}",
+                            {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({
+                                    user_input: prompt, // Send prompt as part of JSON body
+                                }),
+                            }
+                        );
 
-            const data = await response.json();
-            console.log(data.response);
+                        const data = await response.json();
+                        console.log(data.response);
 
-            if (response.ok) {
-              // Update the chat session with user's input
-              const chatSession = document.getElementById("chat-session");
-              chatSession.innerHTML += `
+                        // Append the new message to the chat window
+                        const chatSession = document.getElementById("chat-session");
+                        const userMessage = document.createElement("li");
+                        userMessage.className = "message user";
+                        userMessage.innerHTML = `<div class="content"><p>${prompt}</p></div>`;
+                        chatSession.appendChild(userMessage);
+
+                        const assistantMessage = document.createElement("li");
+                        assistantMessage.className = "message assistant";
+                        assistantMessage.innerHTML = `<div class="content"><p>${data.response}</p></div>`;
+                        chatSession.appendChild(assistantMessage);
+
+                        // Clear the input field
+                        document.getElementById("prompt").value = "";
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
+                });
+        });
+    </script>
+</head>
+<body>
+    <h1>Welcome to the Python CosmosDB ChatGPT</h1>
+    <div class="container">
+        <div class="chat-window">
+            <h2>Chat Session</h2>
+            <ul id="chat-session" class="message-list">
+                {% for message in session.messages %}
                 <li class="message user">
                     <div class="content">
-                        <p>${prompt}</p>
+                        <p>{{ message.prompt }}</p>
                     </div>
                 </li>
                 <li class="message assistant">
                     <div class="content">
-                        <p>${data.response}</p>
+                        <p>{{ message.completion }}</p>
                     </div>
                 </li>
-            `;
-
-              // Scroll chat window to the bottom to show the new messages
-              const chatWindow = document.querySelector(".chat-window");
-              chatWindow.scrollTop = chatWindow.scrollHeight;
-
-              // Clear the input field after submission
-              document.getElementById("prompt").value = "";
-            } else {
-              console.error("Error:", data.error);
-              alert("Error: " + data.error);
-            }
-          } catch (error) {
-            console.error("Fetch Error:", error);
-          }
-        });
-    </script>
-  </body>
+                {% endfor %}
+            </ul>
+        </div>
+        <form id="message-form">
+            <textarea id="prompt" placeholder="Enter your prompt"></textarea>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</body>
 </html>
